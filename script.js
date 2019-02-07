@@ -10,7 +10,8 @@ const mouse = {
 }
 
 const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']
-
+var gravity = 1;
+var friction = 0.8;
 // Event Listeners
 addEventListener('mousemove', event => {
     mouse.x = event.clientX
@@ -22,6 +23,15 @@ addEventListener('resize', () => {
     canvas.height = innerHeight
     init()
 })
+
+//integer functions
+function randomIntFromRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+//random color functions
+function randomColor(colors) {
+    return colors[Math.floor(Math.random() * colors.length)]
+}
 
 // Objects
 function Ball(x, y, radius, color, dy) {
@@ -36,15 +46,16 @@ Ball.prototype.draw = function() {
     c.beginPath()
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
     c.fillStyle = this.color
-    c.fill()
-    c.closePath()
+    c.fill();
+    c.stroke();
+    c.closePath();
 }
 
 Ball.prototype.update = function() {
   if (this.y + this.radius > canvas.height) {
-      this.dy = -this.dy;
+      this.dy = -this.dy * friction;
   } else {
-    this.dy += 1;
+    this.dy += gravity;
     console.log(this.dy);
   }
     this.y += this.dy;
@@ -53,19 +64,25 @@ Ball.prototype.update = function() {
 
 // Implementation
 var ball;
+var ballArray = [];
 function init() {
- ball = new Ball(canvas.width / 2, canvas.height / 2, 30, 'red', 5);
-console.log(ball);
+  for (var i = 0; i < 100; i++) {
+    var x = randomIntFromRange(0, canvas.width);
+    var y = randomIntFromRange(0, canvas.height);
+    var color = randomColor(colors);
+    ballArray.push(new Ball(x, y, 30, color, 2));
+  }
+
+console.log(ballArray);
 }
 
 // Animation Loop
 function animate() {
-    requestAnimationFrame(animate)
-    c.clearRect(0, 0, canvas.width, canvas.height)
-    ball.update();
-    // objects.forEach(object => {
-    //  object.update();
-    // });
+    requestAnimationFrame(animate);
+    c.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < ballArray.length; i++) {
+      ballArray[i].update();
+    }
 }
 
 init()
