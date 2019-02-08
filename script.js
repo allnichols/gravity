@@ -9,9 +9,14 @@ const mouse = {
     y: innerHeight / 2
 }
 
-const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']
+const colors = [
+  '#3D013C',
+  '#60487F',
+  '#7888BF',
+  '#68C2E5',
+  '#4AF8FF']
 var gravity = 1;
-var friction = 0.8;
+var friction = 0.9;
 // Event Listeners
 addEventListener('mousemove', event => {
     mouse.x = event.clientX
@@ -21,8 +26,12 @@ addEventListener('mousemove', event => {
 addEventListener('resize', () => {
     canvas.width = innerWidth
     canvas.height = innerHeight
-    init()
+    init();
 })
+
+addEventListener('click', () =>{
+  init();
+});
 
 //integer functions
 function randomIntFromRange(min, max) {
@@ -34,10 +43,11 @@ function randomColor(colors) {
 }
 
 // Objects
-function Ball(x, y, radius, color, dy) {
+function Ball(x, y, radius, color, dy, dx) {
     this.x = x;
     this.y = y;
     this.dy = dy;
+    this.dx = dx;
     this.radius = radius;
     this.color = color;
 }
@@ -52,25 +62,35 @@ Ball.prototype.draw = function() {
 }
 
 Ball.prototype.update = function() {
-  if (this.y + this.radius > canvas.height) {
+  if (this.y + this.radius + this.dy > canvas.height) {
       this.dy = -this.dy * friction;
   } else {
     this.dy += gravity;
     console.log(this.dy);
   }
+
+  if (this.x + this.radius + this.dx > canvas.width || this.x - this.radius < 0) {
+    this.dx = -this.dx;
+  }
+    this.x += this.dx;
     this.y += this.dy;
     this.draw()
 }
 
 // Implementation
 var ball;
-var ballArray = [];
+var ballArray;
+
 function init() {
-  for (var i = 0; i < 100; i++) {
-    var x = randomIntFromRange(0, canvas.width);
-    var y = randomIntFromRange(0, canvas.height);
+  ballArray = []; //resets array to prevent call the array again on resize
+  for (var i = 0; i < 200; i++) {
+    var radius = randomIntFromRange(10, 40);
+    var x = randomIntFromRange(radius, canvas.width - radius);
+    var y = randomIntFromRange(0, canvas.height - radius);
+    var dx = randomIntFromRange(-2, 2);
+    var dy = randomIntFromRange(-2, 2);
     var color = randomColor(colors);
-    ballArray.push(new Ball(x, y, 30, color, 2));
+    ballArray.push(new Ball(x, y, radius, color, 2, dy, dx));
   }
 
 console.log(ballArray);
@@ -85,5 +105,5 @@ function animate() {
     }
 }
 
-init()
+init();
 animate()
